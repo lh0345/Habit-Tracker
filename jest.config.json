@@ -1,0 +1,20 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "setupFilesAfterEnv": ["<rootDir>/jest.setup.ts"],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/$1"
+  },
+  "testMatch": [
+    "<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}",
+    "<rootDir>/**/*.{test,spec}.{js,jsx,ts,tsx}"
+  ],
+  "collectCoverageFrom": [
+    "lib/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "hooks/**/*.{ts,tsx}",
+    "!**/*.d.ts",
+    "!**/node_modules/**"
+  ],
+  "coverageReporters": ["text", "lcov", "html"]
+}

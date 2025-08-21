@@ -49,19 +49,29 @@ export const useHabitData = () => {
   )
 
   const logHabit = useCallback(
-    (habitId: string, completed: boolean, mood?: HabitLog["mood"]) => {
+    (habitId: string, completed: boolean, contextData?: {
+      mood?: "great" | "good" | "okay" | "poor"
+      sleepHours?: number
+      energyLevel?: 1 | 2 | 3 | 4 | 5
+      stressLevel?: 1 | 2 | 3 | 4 | 5
+      weather?: "sunny" | "cloudy" | "rainy" | "snowy"
+    }) => {
       const today = getTodayString()
       const existingLogIndex = data.logs.findIndex((log) => log.habitId === habitId && log.date === today)
 
       let newLogs: HabitLog[]
 
-      if (existingLogIndex >= 0) {
+      if (existingLogIndex !== -1) {
         // Update existing log
         newLogs = [...data.logs]
         newLogs[existingLogIndex] = {
           ...newLogs[existingLogIndex],
           completed,
-          mood,
+          mood: contextData?.mood,
+          sleepHours: contextData?.sleepHours,
+          energyLevel: contextData?.energyLevel,
+          stressLevel: contextData?.stressLevel,
+          weather: contextData?.weather,
           loggedAt: new Date(),
         }
       } else {
@@ -71,7 +81,11 @@ export const useHabitData = () => {
           habitId,
           date: today,
           completed,
-          mood,
+          mood: contextData?.mood,
+          sleepHours: contextData?.sleepHours,
+          energyLevel: contextData?.energyLevel,
+          stressLevel: contextData?.stressLevel,
+          weather: contextData?.weather,
           loggedAt: new Date(),
         }
         newLogs = [...data.logs, newLog]

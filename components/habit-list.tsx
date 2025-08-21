@@ -10,7 +10,13 @@ import { calculateHabitStats, isHabitLoggedToday } from "@/lib/habit-utils"
 interface HabitListProps {
   habits: Habit[]
   logs: HabitLog[]
-  onLogHabit: (habitId: string, completed: boolean, mood?: HabitLog["mood"]) => void
+  onLogHabit: (habitId: string, completed: boolean, contextData?: {
+    mood?: HabitLog["mood"]
+    sleepHours?: number
+    energyLevel?: 1 | 2 | 3 | 4 | 5
+    stressLevel?: 1 | 2 | 3 | 4 | 5
+    weather?: "sunny" | "cloudy" | "rainy" | "snowy"
+  }) => void
 }
 
 const TIME_COLORS = {
@@ -114,7 +120,13 @@ export function HabitList({ habits, logs, onLogHabit }: HabitListProps) {
         const loggedToday = isHabitLoggedToday(habit.id, logs)
 
         return (
-          <HabitCard key={habit.id} habit={habit} stats={stats} isLoggedToday={loggedToday} onLogHabit={onLogHabit} />
+          <HabitCard 
+            key={habit.id} 
+            habit={habit} 
+            stats={stats} 
+            isLoggedToday={loggedToday} 
+            onLogHabit={(habitId, completed) => onLogHabit(habitId, completed, undefined)} 
+          />
         )
       })}
     </div>

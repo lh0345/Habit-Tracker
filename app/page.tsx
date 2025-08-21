@@ -15,12 +15,12 @@ import { PerformanceDashboard } from "@/components/performance-dashboard"
 import { DataManagementSection } from "@/components/data-management-section"
 import { WelcomeScreen } from "@/components/welcome-screen"
 import { OnboardingFlow } from "@/components/onboarding-flow"
-import { ErrorFallback } from "@/components/error-components"
+import { MLPerformance } from "@/components/ml-performance"
 import { Home, BarChart3, Brain, Settings } from "lucide-react"
 
 export default function HabitTracker() {
   const { data, isLoading, addHabit, logHabit, importAppData, clearAllData, completeOnboarding } = useHabitData()
-  const { predictions, isTraining, retrain } = usePredictions(data.habits, data.logs)
+  const { predictions, isTraining, modelState, retrain } = usePredictions(data.habits, data.logs)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [dataCorrupted, setDataCorrupted] = useState(false)
 
@@ -202,7 +202,10 @@ export default function HabitTracker() {
 
           <TabsContent value="predictions">
             <div className="max-w-4xl mx-auto">
-              <PredictionSection predictions={predictions} isTraining={isTraining} onRetrain={retrain} />
+              <div className="grid gap-6 md:grid-cols-2">
+                <PredictionSection predictions={predictions} isTraining={isTraining} onRetrain={retrain} />
+                <MLPerformance modelState={modelState} isTraining={isTraining} />
+              </div>
             </div>
           </TabsContent>
 

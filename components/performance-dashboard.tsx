@@ -11,6 +11,10 @@ import { getHabitPerformance, getOverallPerformance } from "@/lib/performance-ut
 import { PerformanceOverview } from "@/components/performance-overview"
 import { HabitPerformanceChart } from "@/components/habit-performance-chart"
 import { StreakCalendar } from "@/components/streak-calendar"
+import { MLPerformance } from "@/components/ml-performance"
+import { AdvancedMLDashboard } from "@/components/advanced-ml-dashboard"
+import { PredictionSection } from "@/components/prediction-section"
+import { predictionEngine } from "@/lib/prediction-engine"
 
 interface PerformanceDashboardProps {
   habits: Habit[]
@@ -20,12 +24,35 @@ interface PerformanceDashboardProps {
 export const PerformanceDashboard = memo(function PerformanceDashboard({ habits, logs }: PerformanceDashboardProps) {
   const [timeframe, setTimeframe] = useState<"week" | "month">("week")
   const [selectedHabit, setSelectedHabit] = useState<string | null>(null)
+  const [isTraining, setIsTraining] = useState(false)
 
   const overallPerformance = useMemo(() => getOverallPerformance(habits, logs), [habits, logs])
   const habitPerformances = useMemo(() => 
     habits.map((habit) => getHabitPerformance(habit, logs)), 
     [habits, logs]
   )
+
+  // Get ML model state and predictions
+  const modelState = useMemo(() => predictionEngine.getModelState(), [habits, logs])
+  const predictions = useMemo(() => {
+    try {
+      return predictionEngine.getTopPredictions(habits, logs, 5)
+    } catch {
+      return { today: [], tomorrow: [] }
+    }
+  }, [habits, logs])
+
+  const handleRetrain = useCallback(async () => {
+    setIsTraining(true)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 100)) // Small delay for UI
+      predictionEngine.train(habits, logs)
+    } catch (error) {
+      console.error("Retraining failed:", error)
+    } finally {
+      setIsTraining(false)
+    }
+  }, [habits, logs])
 
   const handleTimeframeChange = useCallback((newTimeframe: "week" | "month") => {
     setTimeframe(newTimeframe)
@@ -69,14 +96,23 @@ export const PerformanceDashboard = memo(function PerformanceDashboard({ habits,
       </Card>
 
       <Tabs defaultValue="charts" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="charts" className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
-            Performance Charts
+            Charts
           </TabsTrigger>
           <TabsTrigger value="streaks" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            Streak Calendar
+            Streaks
+          </TabsTrigger>
+          <TabsTrigger value="predictions">
+            Predictions
+          </TabsTrigger>
+          <TabsTrigger value="ml-basic">
+            ML Metrics
+          </TabsTrigger>
+          <TabsTrigger value="ml-advanced">
+            ML Analytics
           </TabsTrigger>
         </TabsList>
 
@@ -111,6 +147,25 @@ export const PerformanceDashboard = memo(function PerformanceDashboard({ habits,
               <StreakCalendar key={habit.id} habitId={habit.id} habitName={habit.name} logs={logs} />
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="predictions" className="space-y-4">
+          <PredictionSection 
+            predictions={predictions}
+            isTraining={isTraining}
+            onRetrain={handleRetrain}
+          />
+        </TabsContent>
+
+        <TabsContent value="ml-basic" className="space-y-4">
+          <MLPerformance 
+            modelState={modelState}
+            isTraining={isTraining}
+          />
+        </TabsContent>
+
+        <TabsContent value="ml-advanced" className="space-y-4">
+          <AdvancedMLDashboard />
         </TabsContent>
       </Tabs>
 

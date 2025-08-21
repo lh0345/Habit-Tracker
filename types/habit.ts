@@ -13,6 +13,10 @@ export interface HabitLog {
   date: string // YYYY-MM-DD format
   completed: boolean
   mood?: "great" | "good" | "okay" | "poor"
+  sleepHours?: number
+  energyLevel?: 1 | 2 | 3 | 4 | 5
+  stressLevel?: 1 | 2 | 3 | 4 | 5
+  weather?: "sunny" | "cloudy" | "rainy" | "snowy"
   loggedAt: Date
 }
 
@@ -42,10 +46,30 @@ export interface MLFeatures {
   dayOfWeek: number // 0-6
   timeOfDay: "morning" | "afternoon" | "evening" | "anytime"
   mood?: "great" | "good" | "okay" | "poor"
+  sleepHours?: number
+  energyLevel?: 1 | 2 | 3 | 4 | 5
+  stressLevel?: 1 | 2 | 3 | 4 | 5
+  weather?: "sunny" | "cloudy" | "rainy" | "snowy"
   streak: number
   daysSinceLastLog: number
   successRate: number
   category: string
+  daysSinceCreated: number
+  isWeekend: boolean
+}
+
+export interface MLModelState {
+  isTrained: boolean
+  trainingDate?: Date
+  totalSamples: number
+  accuracy?: number
+  featureImportance?: Record<string, number>
+}
+
+export interface EnhancedPrediction extends Prediction {
+  modelType: "logistic" | "tree" | "ensemble"
+  featureContributions?: Record<string, number>
+  alternativeRecommendations?: string[]
 }
 
 export interface AppData {
@@ -53,4 +77,5 @@ export interface AppData {
   logs: HabitLog[]
   hasCompletedOnboarding: boolean
   lastTrainingDate?: Date
+  mlModelState?: MLModelState
 }
